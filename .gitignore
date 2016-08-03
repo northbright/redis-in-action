@@ -4,3 +4,7 @@ GeoLiteCity-*.csv
 .idea
 *.iml
 node_modules
+# For Golang source
+go/ch*/*
+!go/ch*/*.go
+
