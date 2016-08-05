@@ -45,6 +45,7 @@ func article_vote(conn redis.Conn, user, article string) {
 	conn.Do("HINCRBY", article, "votes", 1)
 }
 
+// post_article() is Golang version of Listing 1.7.
 func post_article(conn redis.Conn, user, title, link string) (article_id string) {
 	n, _ := redis.Int64(conn.Do("INCR", "article:"))
 	article_id = strconv.FormatInt(n, 10)
