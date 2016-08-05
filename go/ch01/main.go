@@ -73,7 +73,7 @@ func get_articles(conn redis.Conn, page uint64, order string) (articles []map[st
 	startStr := strconv.FormatUint(start, 10)
 	endStr := strconv.FormatUint(end, 10)
 
-	ids, _ := redis.Strings(conn.Do("ZREVRANGE", startStr, endStr))
+	ids, _ := redis.Strings(conn.Do("ZREVRANGE", order, startStr, endStr))
 	articles = []map[string]string{}
 	for _, id := range ids {
 		article_data, _ := redis.StringMap(conn.Do("HGETALL", id))
