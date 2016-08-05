@@ -14,6 +14,12 @@ const (
 	VOTE_SCORE          int64 = 432
 )
 
+// get_id_in_key() gets the id part of given key which use colon as separator.
+//
+// Params:
+//   key: key name using colon as separaor. Ex: "user:83271", "article:92617".
+// Return:
+//   id: id part of the key.
 func get_id_in_key(key string) (id string) {
 	delimiter := ":"
 
