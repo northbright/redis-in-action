@@ -59,8 +59,8 @@ func post_article(conn redis.Conn, user, title, link string) (article_id string)
 	article := "article:" + article_id
 	conn.Do("HMSET", article, "title", title, "link", link, "poster", user, "time", now, "votes", 1)
 
-	conn.Do("ZADD", "score:", article, now+VOTE_SCORE)
-	conn.Do("ZADD", "time:", article, now)
+	conn.Do("ZADD", "score:", now+VOTE_SCORE, article)
+	conn.Do("ZADD", "time:", now, article)
 
 	return article_id
 }
