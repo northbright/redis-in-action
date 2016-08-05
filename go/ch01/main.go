@@ -31,6 +31,7 @@ func get_id_in_key(key string) (id string) {
 	return key[idx+len(delimiter):]
 }
 
+// article_vote() is Golang version of Listing 1.6.
 func article_vote(conn redis.Conn, user, article string) {
 	cutoff := time.Now().Unix() - ONE_WEEK_IN_SECONDS
 	t, _ := redis.Int64(conn.Do("ZSCORE", "time:", article))
