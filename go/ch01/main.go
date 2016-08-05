@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	ONE_WEEK_IN_SECONDS int64 = 7 * 86400
-	VOTE_SCORE          int64 = 432
+	ONE_WEEK_IN_SECONDS int64  = 7 * 86400
+	VOTE_SCORE          int64  = 432
+	ARTICLES_PER_PAGE   uint64 = 25
 )
 
 // get_id_in_key() gets the id part of given key which use colon as separator.
@@ -64,6 +65,25 @@ func post_article(conn redis.Conn, user, title, link string) (article_id string)
 	return article_id
 }
 
+// get_articles() is Golang version of Listing 1.8.
+func get_articles(conn redis.Conn, page uint64, order string) (articles []map[string]string) {
+	start := (page - 1) * ARTICLES_PER_PAGE
+	end := start + ARTICLES_PER_PAGE - 1
+
+	startStr := strconv.FormatUint(start, 10)
+	endStr := strconv.FormatUint(end, 10)
+
+	ids, _ := redis.Strings(conn.Do("ZREVRANGE", startStr, endStr))
+	articles = []map[string]string{}
+	for _, id := range ids {
+		article_data, _ := redis.StringMap(conn.Do("HGETALL", id))
+		article_data["id"] = id
+		articles = append(articles, article_data)
+	}
+
+	return articles
+}
+
 func main() {
 	conn, err := redis.Dial("tcp", ":6379")
 	if err != nil {
@@ -76,4 +96,14 @@ func main() {
 	fmt.Printf("Its HASH looks like:\n")
 	r, _ := redis.StringMap(conn.Do("HGETALL", "article:"+article_id))
 	fmt.Printf("article:%v\n", r)
+
+	article_vote(conn, "other_user", "article:"+article_id)
+	fmt.Printf("We voted for the article, it now has voted:\n")
+	v, _ := redis.Uint64(conn.Do("HGET", "article:"+article_id, "votes"))
+	fmt.Printf("%v\n", v)
+
+	fmt.Printf("The currently highest-scoring articles are:\n")
+	articles := get_articles(conn, 1, "score:")
+	fmt.Printf("%v\n", articles)
+
 }
