@@ -53,7 +53,7 @@ func post_article(conn redis.Conn, user, title, link string) (article_id string)
 
 	voted := "voted:" + article_id
 	conn.Do("SADD", voted, user)
-	conn.Do("EXPIRE", "voted", ONE_WEEK_IN_SECONDS)
+	conn.Do("EXPIRE", voted, ONE_WEEK_IN_SECONDS)
 
 	now := time.Now().Unix()
 	article := "article:" + article_id
