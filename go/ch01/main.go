@@ -87,6 +87,7 @@ func main() {
 		fmt.Printf("redis.Dial() error: %v\n", err)
 		return
 	}
+	defer conn.Close()
 
 	article_id := post_article(conn, "username", "A title", "http://www.google.com")
 	fmt.Printf("We posted a new article with id:%v\n", article_id)
