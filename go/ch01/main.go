@@ -81,6 +81,19 @@ func get_articles(conn redis.Conn, page uint64, order string) (articles []map[st
 	return articles
 }
 
+// add_remove_groups() is Golang version of Listing 1.9.
+func add_remove_groups(conn redis.Conn, article_id string, to_add, to_remove []string) {
+	article := "article:" + article_id
+
+	for _, v := range to_add {
+		redis.Int(conn.Do("SADD", "group:"+v, article))
+	}
+
+	for _, v := range to_remove {
+		redis.Int(conn.Do("SREM", "group:"+v, article))
+	}
+}
+
 func main() {
 	conn, err := redis.Dial("tcp", ":6379")
 	if err != nil {
