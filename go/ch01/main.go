@@ -94,6 +94,17 @@ func add_remove_groups(conn redis.Conn, article_id string, to_add, to_remove []s
 	}
 }
 
+// get_group_articles() is Golang version of Listing 1.10.
+func get_group_articles(conn redis.Conn, group string, page uint64, order string) (articles []map[string]string) {
+	key := order + group
+	exists, _ := redis.Bool(conn.Do("EXISTS", key))
+	if !exists {
+		redis.Int(conn.Do("ZINTERSTORE", key, "group:"+group, order, "AGGREGATE", "MAX"))
+		redis.Int(conn.Do("EXPIRE", key, 60))
+	}
+	return get_articles(conn, page, key)
+}
+
 func main() {
 	conn, err := redis.Dial("tcp", ":6379")
 	if err != nil {
