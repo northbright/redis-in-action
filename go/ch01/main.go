@@ -99,8 +99,8 @@ func get_group_articles(conn redis.Conn, group string, page uint64, order string
 	key := order + group
 	exists, _ := redis.Bool(conn.Do("EXISTS", key))
 	if !exists {
-		redis.Int(conn.Do("ZINTERSTORE", key, "group:"+group, order, "AGGREGATE", "MAX"))
-		redis.Int(conn.Do("EXPIRE", key, 60))
+		conn.Do("ZINTERSTORE", key, 2, "group:"+group, order, "AGGREGATE", "MAX")
+		conn.Do("EXPIRE", key, 60)
 	}
 	return get_articles(conn, page, key)
 }
@@ -128,4 +128,10 @@ func main() {
 	articles := get_articles(conn, 1, "score:")
 	fmt.Printf("%v\n", articles)
 
+	to_add_groups := []string{"new-group"}
+	to_remove_groups := []string{}
+	fmt.Printf("We added the article to a new group, other articles include:\n")
+	add_remove_groups(conn, article_id, to_add_groups, to_remove_groups)
+	articles = get_group_articles(conn, "new-group", 1, "score:")
+	fmt.Printf("%v\n", articles)
 }
